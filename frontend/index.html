@@ -424,7 +424,7 @@
     </div>
 
     <script>
-        const API_URL = () => document.getElementById('apiInput').value;
+        const API_URL = () => document.getElementById('apiInput').value || window.location.origin;
 
         // Tab navigation
         document.querySelectorAll('.tab-btn').forEach(btn => {
