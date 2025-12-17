@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reconhecimento Facial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #8888a0;
+            --danger: #ff4466;
+            --success: #00d4aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(100, 50, 200, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .photo-upload {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .photo-upload img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .photo-upload input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--accent-glow);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .user-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--success);
+        }
+
+        .status-blocked {
+            background: rgba(255, 68, 102, 0.2);
+            color: var(--danger);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-success {
+            background: rgba(0, 212, 170, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(255, 68, 102, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        #apiUrl {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--bg-card);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #apiUrl input {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            width: 200px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Face Access</h1>
+            <p>Sistema de Controle de Acesso por Reconhecimento Facial</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="register">📝 Cadastrar</button>
+            <button class="tab-btn" data-tab="users">👥 Usuários</button>
+        </div>
+
+        <div id="alerts"></div>
+
+        <div id="register" class="tab-content active">
+            <div class="card">
+                <h2>📸 Cadastrar Novo Usuário</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Nome Completo</label>
+                        <input type="text" id="name" required placeholder="Digite o nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required placeholder="email@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Departamento</label>
+                        <input type="text" id="department" placeholder="Ex: TI, RH, Financeiro">
+                    </div>
+                    <div class="form-group">
+                        <label>Foto do Rosto</label>
+                        <div class="photo-upload" id="photoUpload">
+                            <input type="file" id="photo" accept="image/*" required>
+                            <div id="photoPreview">
+                                <p>📷 Clique ou arraste uma foto</p>
+                                <small>Use uma foto clara do rosto</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="submitText">Cadastrar Usuário</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="users" class="tab-content">
+            <div class="card">
+                <h2>👥 Usuários Cadastrados</h2>
+                <div id="usersList" class="users-grid">
+                    <div class="empty-state">
+                        <p>Carregando usuários...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="apiUrl">
+        API: <input type="text" id="apiInput" value="http://localhost:8000">
+    </div>
+
+    <script>
+        const API_URL = () => document.getElementById('apiInput').value;
+
+        // Tab navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                if (btn.dataset.tab === 'users') loadUsers();
+            });
+        });
+
+        // Photo preview
+        document.getElementById('photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('photoPreview').innerHTML = 
+                        `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alertsDiv = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertsDiv.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Register form
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('department', document.getElementById('department').value);
+            formData.append('photo', document.getElementById('photo').files[0]);
+
+            try {
+                const res = await fetch(`${API_URL()}/api/users/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showAlert(data.message, 'success');
+                    e.target.reset();
+                    document.getElementById('photoPreview').innerHTML = 
+                        '<p>📷 Clique ou arraste uma foto</p><small>Use uma foto clara do rosto</small>';
+                } else {
+                    showAlert(data.detail || 'Erro ao cadastrar', 'error');
+                }
+            } catch (err) {
+                showAlert('Erro de conexão com o servidor', 'error');
+            }
+
+            submitBtn.innerHTML = 'Cadastrar Usuário';
+            submitBtn.disabled = false;
+        });
+
+        // Load users
+        async function loadUsers() {
+            const container = document.getElementById('usersList');
+            try {
+                const res = await fetch(`${API_URL()}/api/users`);
+                const data = await res.json();
+                
+                if (data.users.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>Nenhum usuário cadastrado</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = data.users.map(user => `
+                    <div class="user-card">
+                        <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <h3>${user.name}</h3>
+                            <p>${user.email}</p>
+                            <p>${user.department || 'Sem departamento'}</p>
+                            <span class="status-badge ${user.access_granted ? 'status-active' : 'status-blocked'}">
+                                ${user.access_granted ? '✓ Ativo' : '✕ Bloqueado'}
+                            </span>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm" onclick="toggleAccess('${user.id}')">
+                                ${user.access_granted ? '🔒' : '🔓'}
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = '<div class="empty-state"><p>Erro ao carregar usuários</p></div>';
+            }
+        }
+
+        async function toggleAccess(userId) {
+            try {
+                await fetch(`${API_URL()}/api/users/${userId}/access`, { method: 'PATCH' });
+                loadUsers();
+            } catch (err) {
+                showAlert('Erro ao alterar acesso', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Remover este usuário?')) return;
+            try {
+                await fetch(`${API_URL()}/api/users/${userId}`, { method: 'DELETE' });
+                showAlert('Usuário removido', 'success');
+                loadUsers();
+            } catch (err) {
+                showAlert('Erro ao remover', 'error');
+            }
+        }
+
+        // Initial load
+        loadUsers();
+    </script>
+</body>
+</html>
+
