@@ -14,8 +14,8 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as FaceDetector from 'expo-face-detector';
 import * as ImageManipulator from 'expo-image-manipulator';
 
-// ⚠️ CONFIGURE A URL DO SEU SERVIDOR AQUI
-const API_URL = 'https://seu-servidor.easypanel.host';
+// URL do servidor
+const API_URL = 'https://hdt-energy-projetox.mqtl34.easypanel.host';
 
 const { width, height } = Dimensions.get('window');
 
